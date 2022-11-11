@@ -3,10 +3,26 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-const dotenv = require("dotenv");
 
-const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/users");
+const config = require("config");
+const mongoose = require("mongoose");
+
+//database
+const mongoConnectionString = config.get("dataBase.host");
+
+mongoose
+  .connect(mongoConnectionString, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("connected to database MongoDB"))
+  .catch(err => {
+    console.error(err);
+    throw err;
+  });
+
+const indexRouter = require("./src/routes/index");
+const usersRouter = require("./src/routes/users");
 
 const app = express();
 
@@ -16,7 +32,6 @@ app.set("view engine", "hbs");
 
 app.use(logger("dev"));
 app.use(express.json());
-console.log("hi");
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
